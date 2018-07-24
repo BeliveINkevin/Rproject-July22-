@@ -1,0 +1,53 @@
+---
+title: "ForestFires(July22)"
+author: "Kevin"
+date: "July 22, 2018"
+output: html_document
+---
+
+# Background
+Forest fires, known as wildfires, is a fire in an area of combustible vegetation that occurs in a countryside or rural area. Wildfires can cause damage to the land, the property, the ecosystem, the life in the area, the weather, and much more. For this project, I got the data from https://www.datazar.com/file/f1e113f1b-dab5-47c2-ad4b-c8ca08adca5c, I then copied and pasted the data into a text file. From there I converted it to excel file, then imported it into R
+```{r}
+library(readxl)
+df <- read_excel("C:/Documents/My Excel/Forestfires.xlsx")
+forestfire<-df[,-c(1:2)]
+head(forestfire)
+library(dplyr)
+library(ggplot2)
+```
+#Counting the total months and days
+The reason for me doing this is because I want to see a total amount with regards to month and day so I can get a good feeling about the frequency of forest fires and when we can expect to have the most forest fires
+```{r}
+unique(forestfire$month)
+```
+Looks like there were forest fires occuring each month; however, the frequency varies per month
+```{r}
+summary(dplyr::filter(forestfire,month=='jan'))
+summary(dplyr::filter(forestfire,month=='feb'))
+summary(dplyr::filter(forestfire,month=='mar'))
+summary(dplyr::filter(forestfire,month=='apr'))
+summary(dplyr::filter(forestfire,month=='may'))
+summary(dplyr::filter(forestfire,month=='jun'))
+summary(dplyr::filter(forestfire,month=='jul'))
+summary(dplyr::filter(forestfire,month=='aug'))
+summary(dplyr::filter(forestfire,month=='sep'))
+summary(dplyr::filter(forestfire,month=='oct'))
+summary(dplyr::filter(forestfire,month=='nov'))
+summary(dplyr::filter(forestfire,month=='dec'))
+
+data<-data.frame(x=c('jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'),y=c(2,20,54,9,2,17,32,284,172,15,1,9))
+barplot(data$y,names.arg = data$x,ylim=c(0,180), ylab="Frequency of forest fires", xlab="Month")
+```
+
+Looking at the summary results, per month, I found that there were more forest fires occuring during September, August, and march with occurences of 172, 184, and 54. I think the reason for August and September having the most fires is because those months are the peak of summer season, and thus the weather get hot and humid which is very prone for trees to catch fire. All other months had occurences of less than 20 fires. November through January is when there was the absolute lowest frequency of forest fires. I believe the reason is because of the winter season. The weather is so cold that there is absolutely no chance of a forest fire occuring, since the snow and cold weather can easily extinguish the fire. 
+
+#Using Regression to predict the accuracy of the variables
+I'm using linear regression to see if there is a relationship between Fine Fuel Moisture Code to the other variables which include: ,DMC,DC,ISI,temp,RH,wind,rain, and area. The regression equation, given by the formula $y=x_{1}+x_{2}+.....+x_{N-1}+x_N$ where $x_N$ represents the total number of independant variables. For this, I want to see how other variables can effect FFMC. Usually, FFMC is the most important variable because it is a numeric rating of the moisture content of litter and other fine fuels. The higher the value is, the more flammable and likely it is to ignite, which is why I chose FFMC as the dependant variable
+```{r}
+attach(forestfire)
+FFMC<-lm(FFMC~DMC+DC+ISI+temp+RH+wind+rain+area)
+summary(FFMC)
+```
+
+#Analysis and conclusion
+From the results that obtained about the regression model, I can conclude that the model isn't that accurate because  $R^2 = 0.4008$. I think a *possible* reason is because looking at the plot above which displays frequency of fires vs. month. I can see that there were more forest fires happening during March compared to June and July, both of which are in the summer season. As a result, this caused the linear model to be less and less accurate since it's slightly harder to predict the certain trend in the forest fire. I think a possible explanation for this is that March is closer to spring, which is where temperature/weather/climate tends to change dramatically, therefore there a shift in weather patterns which might impact the ignition sensitivity of the forest trees, thus resulting in fires happening. Again, this is a **possible** cause but there is no guarantee that my theory is correct. 
